@@ -1,8 +1,7 @@
-from types import new_class
-from flask import Flask, request, jsonify
-from flask_cors import CORS, cross_origin
+from flask import Flask, request, jsonify, send_file
+from flask_cors import CORS
 from prediction import Predict
-from flask import send_file
+import time
 
 app = Flask(__name__)
 cors = CORS(app)
@@ -34,12 +33,13 @@ def hello():
 
 @app.route('/genCSV', methods=['POST'])
 def generateCsv():
-    csvFile = request.files['file']
-    print('Recieved Dataeset for prediction: ', csvFile)
+    recv_timestamp = time.time()
+    csv_file = request.files['file']
+    print('Recieved CSV for Normalizing: ', csv_file)
     newCSV = Predict()
-    payload = newCSV.generateCSV(csvFile)
-    
-    return send_file('out.zip', mimetype='zip', attachment_filename='out.zip', as_attachment=True)
+    zip_path = newCSV.generateCSV(csv_file, recv_timestamp)
+
+    return send_file(zip_path, mimetype='zip', attachment_filename='out.zip', as_attachment=True)
 
 
 if __name__ == '__main__':
