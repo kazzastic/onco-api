@@ -5,10 +5,15 @@ Created on Mon Feb 22 19:23:54 2021
 
 @author: kazzastic
 """
+from io import BytesIO
+from types import new_class
 from sklearn.metrics import classification_report
 
 import pandas as pd
+import numpy as np
+import tempfile
 import pickle
+import os
 
 filename = 'logisticReg.sav'
 
@@ -44,3 +49,16 @@ class Predict(object):
         report = classification_report(
             df["established"], df["predicted"], output_dict=True)
         return {"predictions": payload, "report": report}
+
+    def generateCSV(self, file, timestamp):
+        data = pd.read_csv(file, low_memory=False)
+        columns_added = ["WBC(10^9/L)", "RBC(10^12/L)", "HGB(g/dL)", "MCV(fL)", "MCH(pg)", "MCH(pg)", "PLT(10^9/L)", "NEUT#(10^9/L)", "LYMPH#(10^9/L)",
+                         "MONO#(10^9/L)", "EO#(10^9/L)", "BASO#(10^9/L)", "NEUT%(%)", "LYMPH%(%)", "MONO%(%)", "EO%(%)", "BASO%(%)", "IG#(10^9/L)", "IG%(%)"]
+        new_csv = data[columns_added].replace(
+            r'^\s*$', np.NaN, regex=True).replace("----", np.NaN)
+        new_csv = new_csv.dropna(subset=columns_added)
+        comp_opts = dict(method='zip', archive_name='out.csv')
+        out_path = os.path.join(tempfile.gettempdir(), f'out_{timestamp}.zip')
+        new_csv.to_csv(out_path, index=False, compression=comp_opts)
+
+        return out_path
