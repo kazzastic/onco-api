@@ -52,11 +52,12 @@ class Predict(object):
 
     def generateCSV(self, file, timestamp):
         data = pd.read_csv(file, low_memory=False)
-        columns_added = ["WBC(10^9/L)", "RBC(10^12/L)", "HGB(g/dL)", "MCV(fL)", "MCH(pg)", "MCH(pg)", "PLT(10^9/L)", "NEUT#(10^9/L)", "LYMPH#(10^9/L)",
-                         "MONO#(10^9/L)", "EO#(10^9/L)", "BASO#(10^9/L)", "NEUT%(%)", "LYMPH%(%)", "MONO%(%)", "EO%(%)", "BASO%(%)", "IG#(10^9/L)", "IG%(%)"]
+        columns_added = ["WBC(10^9/L)", "RBC(10^12/L)", "HGB(g/dL)", "HCT(%)", "MCV(fL)", "MCH(pg)", "MCHC(g/dL)", "PLT(10^9/L)", "RDW-SD(fL)", "RDW-CV(%)", "PDW(fL)", "MPV(fL)", "P-LCR(%)", "PCT(%)", "NRBC#(10^9/L)", "NRBC%(%)", "NEUT#(10^9/L)", "LYMPH#(10^9/L)",
+                         "MONO#(10^9/L)", "EO#(10^9/L)", "BASO#(10^9/L)", "NEUT%(%)", "LYMPH%(%)", "MONO%(%)", "EO%(%)", "BASO%(%)", "IG#(10^9/L)", "IG%(%)", "RET#(10^9/L)", "[HFLC#(10^9/L)]", "[HFLC%(%)]", "[NE-SSC(ch)]", "[NE-SFL(ch)]", "[NE-FSC(ch)]", "[LY-X(ch)]", "[LY-Y(ch)]", "[LY-Z(ch)]", "[MO-X(ch)]", "[MO-Y(ch)]", "[MO-Z(ch)]", "[NE-WX]", "[NE-WY]", "[NE-WZ]", "[LY-WX]", "[LY-WY]", "[LY-WZ]", "[MO-WX]", "[MO-WY]", "[MO-WZ]"]
         new_csv = data[columns_added].replace(
             r'^\s*$', np.NaN, regex=True).replace("----", np.NaN)
         new_csv = new_csv.dropna(subset=columns_added)
+        new_csv.columns = ["WBC","RBC","Hb","PCV","MCV","MCH","MCHC","PLT","RDW_SD","RDW_CV","PDW","MPV","P_LCR","PCT","NRBC_abs","NRBC_per","NEUT_abs","LYMPH_abs","MONO_abs","EO_abs","BASO_abs","Neut","Lymph","Mono","Eo","Baso","Ab_IG","per_IG","Retic","HFLC_Abs","HFLC_per","NE_SSC","NE_SFL","NE_FSC","LY_X","LY_Y","LY_Z","MO_X","MO_Y","MO_Z","NE_WX","NE_WY","NE_WZ","LY_WX","LY_WY","LY_WZ","MO_WX","MO_WY","MO_WZ"]
         comp_opts = dict(method='zip', archive_name='out.csv')
         out_path = os.path.join(tempfile.gettempdir(), f'out_{timestamp}.zip')
         new_csv.to_csv(out_path, index=False, compression=comp_opts)
